@@ -1,173 +1,343 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Teaching Plan Form</title>
+  <meta charset="UTF-8">
+  <title>Teaching Plan - Weekly Form</title>
   <style>
-    .form-group { margin-bottom: 1rem; }
-    .inline-inputs { display: flex; gap: 10px; }
-    .remove-btn { color: red; cursor: pointer; font-size: 18px; margin-left: 10px; }
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background: #f8f8f8;
+    }
+    h1, h2 {
+      text-align: center;
+    }
+    form {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      max-width: 900px;
+      margin: auto;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    label {
+      display: block;
+      margin-top: 10px;
+      font-weight: bold;
+    }
+    input, textarea, select {
+      width: 100%;
+      padding: 8px;
+      margin-top: 5px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+    .week-buttons {
+      text-align: center;
+      margin: 20px 0;
+    }
+    .week-buttons button {
+      margin: 3px;
+      padding: 10px 15px;
+      border: none;
+      border-radius: 5px;
+      background-color: #eee;
+      cursor: pointer;
+    }
+    .week-buttons button.active {
+      background-color: #007BFF;
+      color: white;
+      font-weight: bold;
+    }
+    .week-form {
+      margin-top: 20px;
+      background-color: #f0f8ff;
+      padding: 15px;
+      border-radius: 8px;
+    }
+    #saveBtn {
+      margin-top: 20px;
+      background-color: #28a745;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    #generateBtn {
+      display: block;
+      margin: 30px auto 0 auto;
+      background-color: #007BFF;
+      color: white;
+      padding: 12px 30px;
+      font-size: 16px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
-  <h2>Teaching Plan</h2>
-  <form id="teaching-plan-form">
-    <div class="form-group">
-      <label>Start Date of School:</label>
-      <input type="date" name="startDate" required />
+
+  <h1>TEMASEK POLYTECHNIC</h1>
+  <h2>SCHOOL OF INFORMATICS & IT</h2>
+
+  <form id="teachingPlanForm" onsubmit="return false;">
+    <label for="diploma">Diploma In:</label>
+    <input type="text" id="diploma" name="diploma" required>
+
+    <label for="course">Teaching Plan For:</label>
+    <input type="text" id="course" name="course" required>
+
+    <label for="startDate">Semester Start Date:</label>
+    <input type="date" id="startDate" name="startDate" required>
+
+    <button type="button" onclick="initializeWeeks()">Start Plan</button>
+
+    <div id="weekTabs" class="week-buttons"></div>
+
+    <div id="weekForm" class="week-form" style="display:none;">
+      <h3 id="weekTitle">Week X</h3>
+
+      <label>Week Type:</label>
+      <select id="weekType" onchange="handleWeekTypeChange()">
+        <option value="normal" selected>Normal Week</option>
+        <option value="term_test">Term Test</option>
+        <option value="term_break">Term Break</option>
+        <option value="flex_week">Flex Week</option>
+      </select>
+
+      <label>Session #1:</label>
+      <input type="text" id="session1">
+
+      <label>Session #2:</label>
+      <input type="text" id="session2">
+
+      <label>E-Learning / Independent Learning:</label>
+      <input type="text" id="elearning">
+
+      <label>ILO - Contact Hours:</label>
+      <input type="text" id="ilo_contact">
+
+      <label>ILO - Non-Contact Hours:</label>
+      <input type="text" id="ilo_noncontact">
+
+      <label>Remarks:</label>
+      <textarea id="remarks" rows="3"></textarea>
     </div>
 
-    <div id="activities" class="form-group">
-      <label>Activities:</label>
-      <div class="activity inline-inputs">
-        <input type="number" name="activities[0][fromWeek]" placeholder="From week" />
-        <input type="number" name="activities[0][toWeek]" placeholder="To week" />
-        <textarea type="text" name="activities[0][description]" placeholder="Activity"></textarea>
-        <span class="remove-btn" onclick="removeActivity(this)">X</span>
-      </div>
-      <button type="button" onclick="addActivity()">+ Add Activity</button>
-    </div>
+    <div id="specialPeriods" style="margin-top: 30px; background: #fff3cd; padding: 15px; border-radius: 8px;">
+      <h3>Special Periods</h3>
 
-    <div class="form-group">
-      <label>ILO:</label>
-      <label>Contact hours:</label><input type="number" name="contact_hours" placeholder="hours" />
-      <label>Non-contact hours:</label><input type="number" name="non_contact_hours" placeholder="hours" />
-    </div>
+      <label for="examStart">Examination Period Start:</label>
+      <input type="date" id="examStart">
 
-    <div id="remarks" class="form-group">
-      <label>Remarks (Public Holidays):</label>
-      <div class="inline-inputs">
-        <input type="date" name="remarks[0][date]" />
-        <input type="text" name="remarks[0][holiday]" placeholder="Holiday" />
-        <span class="remove-btn" onclick="removeRemark(this)">X</span>
-      </div>
-      <button type="button" onclick="addRemark()">+ Add Holiday</button>
-    </div>
+      <label for="examEnd">Examination Period End:</label>
+      <input type="date" id="examEnd">
 
-    <div class="form-group">
-      <label>Term Break :</label>
-      <div class="inline-inputs">
-        <input type="date" name="termBreak[from]" />
-        <input type="date" name="termBreak[to]" />
-      </div>
-    </div>
+      <label for="vacationStart">Vacation Period Start:</label>
+      <input type="date" id="vacationStart">
 
-    <div class="form-group">
-      <label>Examination Week (from - to):</label>
-      <div class="inline-inputs">
-        <input type="date" name="examWeek[from]" />
-        <input type="date" name="examWeek[to]" />
-      </div>
+      <label for="vacationEnd">Vacation Period End:</label>
+      <input type="date" id="vacationEnd">
     </div>
-
-    <div class="form-group">
-      <label>Vacation Dates:</label>
-      <input type="text" name="vacationDates" />
-    </div>
-
-    <div id="teaching-team" class="form-group">
-      <label>Teaching Team:</label>
-      <div class="inline-inputs">
-        <input type="text" name="teachingTeam[0][name]" placeholder="Name" />
-        <input type="text" name="teachingTeam[0][contact]" placeholder="Contact" />
-        <input type="email" name="teachingTeam[0][email]" placeholder="Email" />
-        <span class="remove-btn" onclick="removeTeamMember(this)">X</span>
-      </div>
-      <button type="button" onclick="addTeamMember()">+ Add Member</button>
-    </div>
-
-    <div class="form-group">
-      <label>Total Hours (Syllabus):</label>
-      <input type="number" name="totalHours" />
-    </div>
-
-    <div class="form-group">
-      <label>Contact Hours:</label>
-      <input type="number" name="contactHours" />
-    </div>
-
-    <div class="form-group">
-      <label>Non-Contact Hours:</label>
-      <input type="number" name="nonContactHours" />
-    </div>
-
-    <div class="form-group">
-      <label>Assessment Weightages:</label>
-      <textarea name="assessmentWeightages"></textarea>
-    </div>
-
-    <button type="submit">Submit</button>
   </form>
 
+  <button id="generateBtn">Generate Teaching Plan</button>
+
   <script>
-    let activityCount = 1;
-    let remarkCount = 1;
-    let teamCount = 1;
+    window.onload = () => {
+      if (performance.navigation.type === 1) { // 1 means page reload
+        window.location.href = "index.html"; // or any homepage
+      }
+    };
 
-    function addActivity() {
-      const div = document.createElement('div');
-      div.className = 'activity inline-inputs';
-      div.innerHTML = `
-        <input type="number" name="activities[${activityCount}][fromWeek]" placeholder="From week" />
-        <input type="number" name="activities[${activityCount}][toWeek]" placeholder="To week" />
-        <input type="text" name="activities[${activityCount}][description]" placeholder="Activity" />
-        <span class="remove-btn" onclick="removeActivity(this)">X</span>
-      `;
-      document.getElementById('activities').insertBefore(div, document.querySelector('#activities button'));
-      activityCount++;
+    const weeksData = Array(18).fill().map(() => ({
+      weekType: 'normal',
+      session1: '',
+      session2: '',
+      elearning: '',
+      ilo_contact: '',
+      ilo_noncontact: '',
+      remarks: ''
+    }));
+
+    let currentWeekIndex = null;
+
+    function initializeWeeks() {
+      const tabs = document.getElementById('weekTabs');
+      tabs.innerHTML = '';
+      document.getElementById('weekForm').style.display = 'block';
+
+      for (let i = 0; i < 18; i++) {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.innerText = `Week ${i + 1}`;
+        btn.onclick = () => loadWeek(i);
+        btn.id = `weekBtn${i}`;
+        tabs.appendChild(btn);
+      }
+
+      loadWeek(0);
     }
 
-    function addRemark() {
-      const div = document.createElement('div');
-      div.className = 'inline-inputs';
-      div.innerHTML = `
-        <input type="date" name="remarks[${remarkCount}][date]" />
-        <input type="text" name="remarks[${remarkCount}][holiday]" placeholder="Holiday" />
-        <span class="remove-btn" onclick="removeRemark(this)">X</span>
-      `;
-      document.getElementById('remarks').insertBefore(div, document.querySelector('#remarks button'));
-      remarkCount++;
+    function loadWeek(index) {
+      if (currentWeekIndex !== null) saveWeekData();
+      currentWeekIndex = index;
+      document.getElementById('weekTitle').innerText = `Week ${index + 1}`;
+
+      for (let i = 0; i < 18; i++) {
+        document.getElementById(`weekBtn${i}`).classList.remove('active');
+      }
+      document.getElementById(`weekBtn${index}`).classList.add('active');
+
+      const data = weeksData[index];
+      document.getElementById('weekType').value = data.weekType || 'normal';
+      document.getElementById('session1').value = data.session1;
+      document.getElementById('session2').value = data.session2;
+      document.getElementById('elearning').value = data.elearning;
+      document.getElementById('ilo_contact').value = data.ilo_contact;
+      document.getElementById('ilo_noncontact').value = data.ilo_noncontact;
+      document.getElementById('remarks').value = data.remarks;
+
+      handleWeekTypeChange();
     }
 
-    function addTeamMember() {
-      const div = document.createElement('div');
-      div.className = 'inline-inputs';
-      div.innerHTML = `
-        <input type="text" name="teachingTeam[${teamCount}][name]" placeholder="Name" />
-        <input type="text" name="teachingTeam[${teamCount}][contact]" placeholder="Contact" />
-        <input type="email" name="teachingTeam[${teamCount}][email]" placeholder="Email" />
-        <span class="remove-btn" onclick="removeTeamMember(this)">X</span>
-      `;
-      document.getElementById('teaching-team').insertBefore(div, document.querySelector('#teaching-team button'));
-      teamCount++;
-    }
+    function handleWeekTypeChange() {
+      const type = document.getElementById('weekType').value;
+      const isDisabled = type !== 'normal';
+      const fields = ['session1', 'session2', 'elearning', 'ilo_contact', 'ilo_noncontact', 'remarks'];
 
-    function removeActivity(button) {
-      button.parentElement.remove();
-    }
-
-    function removeRemark(button) {
-      button.parentElement.remove();
-    }
-
-    function removeTeamMember(button) {
-      button.parentElement.remove();
-    }
-
-    // Optional: Handle form submission with fetch instead of form POST
-    document.getElementById('teaching-plan-form').addEventListener('submit', async function (e) {
-      e.preventDefault();
-      const formData = new FormData(this);
-      const data = Object.fromEntries(formData.entries());
-      const response = await fetch('/api/teaching-plan', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
+      fields.forEach(id => {
+        const field = document.getElementById(id);
+        field.disabled = isDisabled;
+        field.style.backgroundColor = isDisabled ? '#eee' : '';
       });
-      const result = await response.json();
-      alert(result.message || 'Submitted!');
-    });
+    }
+
+    function saveWeekData() {
+      if (currentWeekIndex === null) return;
+
+      const weekType = document.getElementById('weekType').value;
+
+      if (weekType === 'normal') {
+        const requiredFields = ['session1', 'session2', 'elearning', 'ilo_contact', 'ilo_noncontact'];
+        for (let id of requiredFields) {
+          const value = document.getElementById(id).value.trim();
+          if (!value) {
+            alert("Please fill in all fields except remarks for a normal week.");
+            return;
+          }
+        }
+      }
+
+      weeksData[currentWeekIndex] = {
+        weekType: weekType,
+        session1: document.getElementById('session1').value,
+        session2: document.getElementById('session2').value,
+        elearning: document.getElementById('elearning').value,
+        ilo_contact: document.getElementById('ilo_contact').value,
+        ilo_noncontact: document.getElementById('ilo_noncontact').value,
+        remarks: document.getElementById('remarks').value
+      };
+
+      console.log(`Week ${currentWeekIndex + 1} saved`, weeksData[currentWeekIndex]);
+      alert(`Week ${currentWeekIndex + 1} saved successfully.`);
+    }
+
+    document.getElementById('generateBtn').addEventListener('click', generateTeachingPlanTable);
+
+    function generateTeachingPlanTable() {
+      saveWeekData();
+
+      const tableWindow = window.open('', '_blank');
+      const doc = tableWindow.document;
+
+      let tableHTML = `
+        <html><head><title>Generated Teaching Plan</title>
+        <style>
+          body { font-family: Arial, sans-serif; padding: 20px; }
+          table { border-collapse: collapse; width: 100%; }
+          th, td { border: 1px solid #666; padding: 6px; text-align: center; vertical-align: middle; }
+          th { background-color: #cce5ff; }
+          .grey { background-color: #d9d9d9; }
+        </style>
+        </head><body>
+        <h2>TEMASEK POLYTECHNIC<br>SCHOOL OF INFORMATICS & IT</h2>
+        <h3>Generated Teaching Plan</h3>
+        <table>
+          <tr class="grey">
+            <th>Wk</th>
+            <th>Commencing</th>
+            <th colspan="2">Contact Hours<br>Workshop / Practical / Tutorial</th>
+            <th>Non-Contact Hours<br>E-Learning / Independent Learning</th>
+            <th>ILO<br>Contact Hours</th>
+            <th>ILO<br>Non-Contact Hours</th>
+            <th>Remarks</th>
+          </tr>`;
+
+      const startDate = new Date(document.getElementById('startDate').value);
+      for (let i = 0; i < 18; i++) {
+        const data = weeksData[i];
+        const weekNo = i + 1;
+        const weekStart = new Date(startDate);
+        weekStart.setDate(weekStart.getDate() + i * 7);
+
+        const formatDate = (date) => {
+          const options = { day: '2-digit', month: 'short', year: '2-digit' };
+          return date.toLocaleDateString('en-GB', options);
+        };
+
+        let row = `<tr><td>${weekNo}</td><td>${formatDate(weekStart)}</td>`;
+
+        if (data.weekType === 'normal') {
+          row += `
+            <td>${data.session1}</td>
+            <td>${data.session2}</td>
+            <td>${data.elearning}</td>
+            <td>${data.ilo_contact}</td>
+            <td>${data.ilo_noncontact}</td>
+            <td>${data.remarks}</td>`;
+        } else {
+          const span = `<td colspan="6" style="text-align:center; vertical-align:middle;"><strong>${data.weekType.replace('_', ' ').toUpperCase()}</strong></td>`;
+          row += `${span}<td>${data.remarks}</td>`;
+        }
+
+        row += `</tr>`;
+        tableHTML += row;
+      }
+
+      function formatRange(startStr, endStr) {
+        if (!startStr || !endStr) return '';
+        const options = { day: '2-digit', month: 'short', year: 'numeric' };
+        const start = new Date(startStr);
+        const end = new Date(endStr);
+        return `(${start.toLocaleDateString('en-GB', options)} - ${end.toLocaleDateString('en-GB', options)})`;
+      }
+
+      const examRange = formatRange(document.getElementById('examStart').value, document.getElementById('examEnd').value);
+      if (examRange) {
+        tableHTML += `
+          <tr>
+            <td colspan="7" style="text-align:center; vertical-align:middle;"><strong>EXAMINATION</strong> ${examRange}</td>
+            <td></td>
+          </tr>`;
+      }
+
+      const vacationRange = formatRange(document.getElementById('vacationStart').value, document.getElementById('vacationEnd').value);
+      if (vacationRange) {
+        tableHTML += `
+          <tr>
+            <td colspan="7" style="text-align:center; vertical-align:middle;"><strong>VACATION</strong> ${vacationRange}</td>
+            <td></td>
+          </tr>`;
+      }
+
+      tableHTML += `</table></body></html>`;
+      doc.write(tableHTML);
+      doc.close();
+    }
   </script>
 </body>
 </html>
