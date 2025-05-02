@@ -76,7 +76,19 @@
       border-radius: 6px;
       cursor: pointer;
     }
+    #exportPdfBtn {
+      display: block;
+      margin: 10px auto;
+      background-color: #dc3545;
+      color: white;
+      padding: 12px 30px;
+      font-size: 16px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
   </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
 
@@ -145,6 +157,7 @@
   </form>
 
   <button id="generateBtn">Generate Teaching Plan</button>
+  <button id="exportPdfBtn">Export to PDF</button>
 
   <script>
     window.onload = () => {
@@ -255,7 +268,6 @@
       const doc = tableWindow.document;
 
       let tableHTML = `
-        <html><head><title>Generated Teaching Plan</title>
         <style>
           body { font-family: Arial, sans-serif; padding: 20px; }
           table { border-collapse: collapse; width: 100%; }
@@ -310,10 +322,7 @@
 
       function formatRange(startStr, endStr) {
         if (!startStr || !endStr) return '';
-        const options = { day: '2-digit', month: 'short', year: 'numeric' };
-        const start = new Date(startStr);
-        const end = new Date(endStr);
-        return `(${start.toLocaleDateString('en-GB', options)} - ${end.toLocaleDateString('en-GB', options)})`;
+        return `${new Date(startStr).toLocaleDateString('en-GB')} to ${new Date(endStr).toLocaleDateString('en-GB')}`;
       }
 
       const examRange = formatRange(document.getElementById('examStart').value, document.getElementById('examEnd').value);
@@ -335,9 +344,91 @@
       }
 
       tableHTML += `</table></body></html>`;
+
+      doc.open();
       doc.write(tableHTML);
       doc.close();
     }
+
+    document.getElementById('exportPdfBtn').addEventListener('click', exportTeachingPlanToPDF);
+
+    function exportTeachingPlanToPDF() {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+
+      let tableHTML = `
+        <h2>TEMASEK POLYTECHNIC<br>SCHOOL OF INFORMATICS & IT</h2>
+        <h3>Generated Teaching Plan</h3>
+        <table border="1" cellpadding="4" cellspacing="0">
+          <tr style="background-color: #cce5ff;">
+            <th>Wk</th>
+            <th>Commencing</th>
+            <th>Contact Hours<br>Workshop / Practical / Tutorial</th>
+            <th>Non-Contact Hours<br>E-Learning / Independent Learning</th>
+            <th>ILO<br>Contact Hours</th>
+            <th>ILO<br>Non-Contact Hours</th>
+            <th>Remarks</th>
+          </tr>`;
+
+      const startDate = new Date(document.getElementById('startDate').value);
+      for (let i = 0; i < 18; i++) {
+        const data = weeksData[i];
+        const weekNo = i + 1;
+        const weekStart = new Date(startDate);
+        weekStart.setDate(weekStart.getDate() + i * 7);
+
+        const formatDate = (date) => {
+          const options = { day: '2-digit', month: 'short', year: '2-digit' };
+          return date.toLocaleDateString('en-GB', options);
+        };
+
+        let row = `<tr><td>${weekNo}</td><td>${formatDate(weekStart)}</td>`;
+
+        if (data.weekType === 'normal') {
+          row += `
+            <td>${data.session1}</td>
+            <td>${data.elearning}</td>
+            <td>${data.ilo_contact}</td>
+            <td>${data.ilo_noncontact}</td>
+            <td>${data.remarks}</td>`;
+        } else {
+          const span = `<td colspan="6" style="text-align:center; vertical-align:middle;"><strong>${data.weekType.replace('_', ' ').toUpperCase()}</strong></td>`;
+          row += `${span}<td>${data.remarks}</td>`;
+        }
+
+        row += `</tr>`;
+        tableHTML += row;
+      }
+
+      const examRange = formatRange(document.getElementById('examStart').value, document.getElementById('examEnd').value);
+      if (examRange) {
+        tableHTML += `
+          <tr>
+            <td colspan="7" style="text-align:center; vertical-align:middle;"><strong>EXAMINATION</strong> ${examRange}</td>
+            <td></td>
+          </tr>`;
+      }
+
+      const vacationRange = formatRange(document.getElementById('vacationStart').value, document.getElementById('vacationEnd').value);
+      if (vacationRange) {
+        tableHTML += `
+          <tr>
+            <td colspan="7" style="text-align:center; vertical-align:middle;"><strong>VACATION</strong> ${vacationRange}</td>
+            <td></td>
+          </tr>`;
+      }
+
+      tableHTML += `</table>`;
+
+      doc.html(tableHTML, {
+        callback: function (doc) {
+          doc.save('Teaching_Plan.pdf');
+        },
+        margin: [20, 20, 20, 20],
+        html2canvas: { scale: 2 },
+      });
+    }
   </script>
+
 </body>
 </html>
