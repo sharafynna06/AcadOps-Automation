@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Teaching Plan Form</title>
+  <style>
+    .form-group { margin-bottom: 1rem; }
+    .inline-inputs { display: flex; gap: 10px; }
+    .remove-btn { color: red; cursor: pointer; font-size: 18px; margin-left: 10px; }
+  </style>
+</head>
+<body>
+  <h2>Teaching Plan</h2>
+  <form id="teaching-plan-form">
+    <div class="form-group">
+      <label>Start Date of School:</label>
+      <input type="date" name="startDate" required />
+    </div>
+
+    <div id="activities" class="form-group">
+      <label>Activities:</label>
+      <div class="activity inline-inputs">
+        <input type="number" name="activities[0][fromWeek]" placeholder="From week" />
+        <input type="number" name="activities[0][toWeek]" placeholder="To week" />
+        <textarea type="text" name="activities[0][description]" placeholder="Activity"></textarea>
+        <span class="remove-btn" onclick="removeActivity(this)">X</span>
+      </div>
+      <button type="button" onclick="addActivity()">+ Add Activity</button>
+    </div>
+
+    <div class="form-group">
+      <label>Fixed Resource Sessions:</label>
+      <textarea name="fixedSessions"></textarea>
+    </div>
+
+    <div class="form-group">
+      <label>ILO:</label>
+      <label>Contact hours:</label><input type="number" name="contact_hours" placeholder="hours" />
+      <label>Non-contact hours:</label><input type="number" name="non_contact_hours" placeholder="hours" />
+    </div>
+
+    <div id="remarks" class="form-group">
+      <label>Remarks (Public Holidays):</label>
+      <div class="inline-inputs">
+        <input type="date" name="remarks[0][date]" />
+        <input type="text" name="remarks[0][holiday]" placeholder="Holiday" />
+        <span class="remove-btn" onclick="removeRemark(this)">X</span>
+      </div>
+      <button type="button" onclick="addRemark()">+ Add Holiday</button>
+    </div>
+
+    <div class="form-group">
+      <label>Term Break :</label>
+      <div class="inline-inputs">
+        <input type="date" name="termBreak[from]" />
+        <input type="date" name="termBreak[to]" />
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Examination Week (from - to):</label>
+      <div class="inline-inputs">
+        <input type="date" name="examWeek[from]" />
+        <input type="date" name="examWeek[to]" />
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Vacation Dates:</label>
+      <input type="text" name="vacationDates" />
+    </div>
+
+    <div id="teaching-team" class="form-group">
+      <label>Teaching Team:</label>
+      <div class="inline-inputs">
+        <input type="text" name="teachingTeam[0][name]" placeholder="Name" />
+        <input type="text" name="teachingTeam[0][contact]" placeholder="Contact" />
+        <input type="email" name="teachingTeam[0][email]" placeholder="Email" />
+        <span class="remove-btn" onclick="removeTeamMember(this)">X</span>
+      </div>
+      <button type="button" onclick="addTeamMember()">+ Add Member</button>
+    </div>
+
+    <div class="form-group">
+      <label>Total Hours (Syllabus):</label>
+      <input type="number" name="totalHours" />
+    </div>
+
+    <div class="form-group">
+      <label>Contact Hours:</label>
+      <input type="number" name="contactHours" />
+    </div>
+
+    <div class="form-group">
+      <label>Non-Contact Hours:</label>
+      <input type="number" name="nonContactHours" />
+    </div>
+
+    <div class="form-group">
+      <label>Assessment Weightages:</label>
+      <textarea name="assessmentWeightages"></textarea>
+    </div>
+
+    <button type="submit">Submit</button>
+  </form>
+
+  <script>
+    let activityCount = 1;
+    let remarkCount = 1;
+    let teamCount = 1;
+
+    function addActivity() {
+      const div = document.createElement('div');
+      div.className = 'activity inline-inputs';
+      div.innerHTML = `
+        <input type="number" name="activities[${activityCount}][fromWeek]" placeholder="From week" />
+        <input type="number" name="activities[${activityCount}][toWeek]" placeholder="To week" />
+        <input type="text" name="activities[${activityCount}][description]" placeholder="Activity" />
+        <span class="remove-btn" onclick="removeActivity(this)">X</span>
+      `;
+      document.getElementById('activities').insertBefore(div, document.querySelector('#activities button'));
+      activityCount++;
+    }
+
+    function addRemark() {
+      const div = document.createElement('div');
+      div.className = 'inline-inputs';
+      div.innerHTML = `
+        <input type="date" name="remarks[${remarkCount}][date]" />
+        <input type="text" name="remarks[${remarkCount}][holiday]" placeholder="Holiday" />
+        <span class="remove-btn" onclick="removeRemark(this)">X</span>
+      `;
+      document.getElementById('remarks').insertBefore(div, document.querySelector('#remarks button'));
+      remarkCount++;
+    }
+
+    function addTeamMember() {
+      const div = document.createElement('div');
+      div.className = 'inline-inputs';
+      div.innerHTML = `
+        <input type="text" name="teachingTeam[${teamCount}][name]" placeholder="Name" />
+        <input type="text" name="teachingTeam[${teamCount}][contact]" placeholder="Contact" />
+        <input type="email" name="teachingTeam[${teamCount}][email]" placeholder="Email" />
+        <span class="remove-btn" onclick="removeTeamMember(this)">X</span>
+      `;
+      document.getElementById('teaching-team').insertBefore(div, document.querySelector('#teaching-team button'));
+      teamCount++;
+    }
+
+    function removeActivity(button) {
+      button.parentElement.remove();
+    }
+
+    function removeRemark(button) {
+      button.parentElement.remove();
+    }
+
+    function removeTeamMember(button) {
+      button.parentElement.remove();
+    }
+
+    // Optional: Handle form submission with fetch instead of form POST
+    document.getElementById('teaching-plan-form').addEventListener('submit', async function (e) {
+      e.preventDefault();
+      const formData = new FormData(this);
+      const data = Object.fromEntries(formData.entries());
+      const response = await fetch('/api/teaching-plan', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+      const result = await response.json();
+      alert(result.message || 'Submitted!');
+    });
+  </script>
+</body>
+</html>
