@@ -59,27 +59,22 @@
       padding: 15px;
       border-radius: 8px;
     }
-    #generateBtn {
+    #generateBtn, #exportWordBtn {
       display: block;
-      margin: 30px auto 0 auto;
-      background-color: #007BFF;
-      color: white;
+      margin: 20px auto;
       padding: 12px 30px;
       font-size: 16px;
       border: none;
       border-radius: 6px;
       cursor: pointer;
     }
-    #exportPdfBtn {
-      display: block;
-      margin: 10px auto;
-      background-color: #dc3545;
+    #generateBtn {
+      background-color: #007BFF;
       color: white;
-      padding: 12px 30px;
-      font-size: 16px;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
+    }
+    #exportWordBtn {
+      background-color: #17a2b8;
+      color: white;
     }
     #teachingPlanOutput table {
       border-collapse: collapse;
@@ -100,10 +95,8 @@
       background-color: #d9d9d9;
     }
   </style>
-  <!-- jsPDF with HTML plugin bundled -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/0.4.1/html2canvas.min.js"></script>
-
+  <!-- html-docx-js for exporting to Word -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html-docx-js/0.4.0/html-docx.min.js"></script>
 </head>
 <body>
 
@@ -160,29 +153,21 @@
   </form>
 
   <button id="generateBtn">Generate Teaching Plan</button>
-  <button id="exportPdfBtn">Export to PDF</button>
+  <button id="exportWordBtn">Export to Word</button>
 
   <div id="teachingPlanOutput"></div>
 
   <script>
-    const { jsPDF } = window.jspdf;
-  
     let weeksData = [];
     let currentWeekIndex = null;
-  
-    window.onload = () => {
-      if (performance.navigation.type === 1) {
-        window.location.href = "index.html";
-      }
-    };
-  
+
     function initializeWeeks() {
       weeksData = [];
       document.getElementById('weekTabs').innerHTML = '';
       document.getElementById('weekForm').style.display = 'block';
       addNewWeek();
     }
-  
+
     function addNewWeek() {
       saveWeekData();
       weeksData.push({
@@ -191,7 +176,7 @@
       renderWeekButtons();
       loadWeek(weeksData.length - 1);
     }
-  
+
     function renderWeekButtons() {
       const tabs = document.getElementById('weekTabs');
       tabs.innerHTML = '';
@@ -209,7 +194,7 @@
       addBtn.onclick = addNewWeek;
       tabs.appendChild(addBtn);
     }
-  
+
     function loadWeek(i) {
       if (currentWeekIndex !== null) saveWeekData();
       currentWeekIndex = i;
@@ -221,7 +206,7 @@
         .forEach(id => document.getElementById(id).value = d[id] || '');
       handleWeekTypeChange();
     }
-  
+
     function handleWeekTypeChange() {
       const isDisabled = document.getElementById('weekType').value !== 'normal';
       ['session1','session2','elearning','ilo_contact','ilo_noncontact','remarks']
@@ -231,7 +216,7 @@
           f.style.backgroundColor = isDisabled ? '#eee':'';  
         });
     }
-  
+
     function saveWeekData() {
       if (currentWeekIndex === null) return;
       if (document.getElementById('weekType').value === 'normal') {
@@ -247,21 +232,7 @@
         .forEach(id => d[id] = document.getElementById(id).value);
       weeksData[currentWeekIndex] = d;
     }
-  
-    document.getElementById('generateBtn').addEventListener('click', generateTeachingPlanTable);
-    document.getElementById('exportPdfBtn').addEventListener('click', function() {
-      generateTeachingPlanTable(); // Ensure table is up to date
-      
-      const doc = new jsPDF('landscape', 'mm', 'a4');
-      const content = document.getElementById('teachingPlanOutput');
-  
-      html2canvas(content).then(canvas => {
-        const imgData = canvas.toDataURL('image/png');
-        doc.addImage(imgData, 'PNG', 10, 10);
-        doc.save('TeachingPlan.pdf');
-      });
-    });
-  
+
     function generateTeachingPlanTable() {
       saveWeekData();
       const out = document.getElementById('teachingPlanOutput');
@@ -284,7 +255,7 @@
             </tr>
           </thead>
           <tbody>`;
-  
+
       const start = new Date(document.getElementById('startDate').value);
       weeksData.forEach((d, i) => {
         const wk = new Date(start);
@@ -306,8 +277,7 @@
         }
         html += `</tr>`;
       });
-  
-      // Format ranges as (12 May - 15 May)
+
       const formatReadableRange = (startStr, endStr) => {
         if (!startStr || !endStr) return '';
         const start = new Date(startStr);
@@ -315,29 +285,45 @@
         const options = { day: '2-digit', month: 'short' };
         return `(${start.toLocaleDateString('en-GB', options)} - ${end.toLocaleDateString('en-GB', options)})`;
       };
-  
+
       const exam = formatReadableRange(
         document.getElementById('examStart').value,
         document.getElementById('examEnd').value
       );
       if (exam) {
-        html += `<tr><td colspan="8" style="text-align:center;vertical-align:middle;">
-                   <strong>EXAMINATION</strong> ${exam}
-                 </td></tr>`;
+        html += `<tr><td colspan="8" style="text-align:center;"><strong>EXAMINATION</strong> ${exam}</td></tr>`;
       }
-  
+
       const vac = formatReadableRange(
         document.getElementById('vacationStart').value,
         document.getElementById('vacationEnd').value
       );
       if (vac) {
-        html += `<tr><td colspan="8" style="text-align:center;vertical-align:middle;">
-                   <strong>VACATION</strong> ${vac}
-                 </td></tr>`;
+        html += `<tr><td colspan="8" style="text-align:center;"><strong>VACATION</strong> ${vac}</td></tr>`;
       }
-  
+
       html += `</tbody></table>`;
       out.innerHTML = html;
+    }
+
+    document.getElementById('generateBtn').addEventListener('click', generateTeachingPlanTable);
+
+    document.getElementById('exportWordBtn').addEventListener('click', function () {
+      generateTeachingPlanTable(); // Ensure latest version
+      const content = document.getElementById('teachingPlanOutput').innerHTML;
+      const preHtml = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Teaching Plan</title></head><body>';
+      const postHtml = '</body></html>';
+      const html = preHtml + content + postHtml;
+      const blob = htmlDocx.asBlob(html);
+      saveAs(blob, 'TeachingPlan.docx');
+    });
+
+    // FileSaver.js (required by html-docx-js)
+    function saveAs(blob, fileName) {
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = fileName;
+      link.click();
     }
   </script>
 </body>
