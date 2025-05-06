@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <title>Teaching Plan - Weekly Form</title>
@@ -9,33 +10,42 @@
       padding: 20px;
       background: #f8f8f8;
     }
-    h1, h2 {
+
+    h1,
+    h2 {
       text-align: center;
     }
+
     form {
       background: white;
       padding: 20px;
       border-radius: 10px;
       max-width: 900px;
       margin: auto;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     }
+
     label {
       display: block;
       margin-top: 10px;
       font-weight: bold;
     }
-    input, textarea, select {
+
+    input,
+    textarea,
+    select {
       width: 100%;
       padding: 8px;
       margin-top: 5px;
       border-radius: 5px;
       border: 1px solid #ccc;
     }
+
     .week-buttons {
       text-align: center;
       margin: 20px 0;
     }
+
     .week-buttons button {
       margin: 3px;
       padding: 10px 15px;
@@ -44,17 +54,20 @@
       background-color: #eee;
       cursor: pointer;
     }
+
     .week-buttons button.active {
       background-color: #007BFF;
       color: white;
       font-weight: bold;
     }
+
     .week-form {
       margin-top: 20px;
       background-color: #f0f8ff;
       padding: 15px;
       border-radius: 8px;
     }
+
     #saveBtn {
       margin-top: 20px;
       background-color: #28a745;
@@ -65,6 +78,7 @@
       font-size: 16px;
       cursor: pointer;
     }
+
     #generateBtn {
       display: block;
       margin: 30px auto 0 auto;
@@ -76,6 +90,7 @@
       border-radius: 6px;
       cursor: pointer;
     }
+
     #exportPdfBtn {
       display: block;
       margin: 10px auto;
@@ -89,7 +104,11 @@
     }
   </style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/docx@8.4.0/build/index.umd.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/docx/7.7.0/docx.umd.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/dompurify@2.3.3/dist/purify.min.js"></script>
 </head>
+
 <body>
 
   <h1>TEMASEK POLYTECHNIC</h1>
@@ -118,6 +137,7 @@
         <option value="term_test">Term Test</option>
         <option value="term_break">Term Break</option>
         <option value="flex_week">Flex Week</option>
+        <option value="study_week">Study Week</option>
       </select>
 
       <label>Session #1:</label>
@@ -157,6 +177,7 @@
   </form>
 
   <button id="generateBtn">Generate Teaching Plan</button>
+  <button id="exportWordBtn">Export to Word</button>
   <button id="exportPdfBtn">Export to PDF</button>
 
   <script>
@@ -400,6 +421,11 @@
         tableHTML += row;
       }
 
+      function formatRange(startStr, endStr) {
+        if (!startStr || !endStr) return '';
+        return `${new Date(startStr).toLocaleDateString('en-GB')} to ${new Date(endStr).toLocaleDateString('en-GB')}`;
+      }
+
       const examRange = formatRange(document.getElementById('examStart').value, document.getElementById('examEnd').value);
       if (examRange) {
         tableHTML += `
@@ -429,6 +455,123 @@
       });
     }
   </script>
+  <script>
+    document.getElementById('exportWordBtn').addEventListener('click', async () => {
+      saveWeekData(); // Ensure data is saved before export
+
+      const { Document, Packer, Paragraph, Table, TableRow, TableCell, WidthType, TextRun, AlignmentType } = window.docx;
+
+      const formatDate = (dateStr) => {
+        const date = new Date(dateStr);
+        return dateStr ? date.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: '2-digit' }) : '';
+      };
+
+      const formatRange = (startStr, endStr) => {
+        if (!startStr || !endStr) return '';
+        return `${new Date(startStr).toLocaleDateString('en-GB')} to ${new Date(endStr).toLocaleDateString('en-GB')}`;
+      };
+
+      const startDate = new Date(document.getElementById('startDate').value);
+      const examRange = formatRange(document.getElementById('examStart').value, document.getElementById('examEnd').value);
+      const vacationRange = formatRange(document.getElementById('vacationStart').value, document.getElementById('vacationEnd').value);
+
+      // Table Header
+      const tableRows = [
+        new TableRow({
+          children: [
+            "Wk", "Commencing", "Contact Hours\nWorkshop / Practical", "Contact Hours\nTutorial",
+            "Non-Contact Hours\nE-Learning", "ILO\nContact Hours", "ILO\nNon-Contact Hours", "Remarks"
+          ].map(text => new TableCell({
+            children: [new Paragraph({ text, alignment: AlignmentType.CENTER })],
+            columnSpan: 1,
+            width: { size: 1000, type: WidthType.DXA },
+          })),
+        }),
+      ];
+
+      for (let i = 0; i < 18; i++) {
+        const week = weeksData[i];
+        const weekStart = new Date(startDate);
+        weekStart.setDate(weekStart.getDate() + i * 7);
+
+        if (week.weekType === "normal") {
+          tableRows.push(new TableRow({
+            children: [
+              `${i + 1}`,
+              formatDate(weekStart),
+              week.session1 || '',
+              week.session2 || '',
+              week.elearning || '',
+              week.ilo_contact || '',
+              week.ilo_noncontact || '',
+              week.remarks || '',
+            ].map(cell => new TableCell({
+              children: [new Paragraph(cell)],
+              verticalAlign: "center",
+            }))
+          }));
+        } else {
+          tableRows.push(new TableRow({
+            children: [
+              new TableCell({ children: [new Paragraph(`${i + 1}`)], verticalAlign: "center" }),
+              new TableCell({ children: [new Paragraph(formatDate(weekStart))], verticalAlign: "center" }),
+              new TableCell({
+                children: [new Paragraph({ text: week.weekType.replace("_", " ").toUpperCase(), alignment: AlignmentType.CENTER })],
+                columnSpan: 6,
+                verticalAlign: "center",
+              }),
+              new TableCell({ children: [new Paragraph(week.remarks || '')], verticalAlign: "center" }),
+            ]
+          }));
+        }
+      }
+
+      if (examRange) {
+        tableRows.push(new TableRow({
+          children: [
+            new TableCell({
+              children: [new Paragraph({ text: `EXAMINATION ${examRange}`, alignment: AlignmentType.CENTER })],
+              columnSpan: 7
+            }),
+            new TableCell({ children: [new Paragraph('')] })
+          ]
+        }));
+      }
+
+      if (vacationRange) {
+        tableRows.push(new TableRow({
+          children: [
+            new TableCell({
+              children: [new Paragraph({ text: `VACATION ${vacationRange}`, alignment: AlignmentType.CENTER })],
+              columnSpan: 7
+            }),
+            new TableCell({ children: [new Paragraph('')] })
+          ]
+        }));
+      }
+
+      const doc = new Document({
+        sections: [{
+          properties: {},
+          children: [
+            new Paragraph({ text: "TEMASEK POLYTECHNIC", heading: "Title", alignment: AlignmentType.CENTER }),
+            new Paragraph({ text: "SCHOOL OF INFORMATICS & IT", heading: "Heading1", alignment: AlignmentType.CENTER }),
+            new Paragraph({ text: "Teaching Plan", heading: "Heading2", alignment: AlignmentType.CENTER }),
+            new Paragraph(""),
+            new Table({ rows: tableRows, width: { size: 100, type: WidthType.PERCENTAGE } }),
+          ]
+        }]
+      });
+
+      const blob = await Packer.toBlob(doc);
+      const blobUrl = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = blobUrl;
+      link.download = "Teaching_Plan_Table.docx";
+      link.click();
+    });
+  </script>
 
 </body>
+
 </html>
