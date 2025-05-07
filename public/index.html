@@ -1,41 +1,51 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
-  <title>Teaching Plan Generator</title>
+  <title>Teaching Plan - Weekly Form</title>
   <style>
     body {
       font-family: Arial, sans-serif;
       padding: 20px;
       background: #f8f8f8;
     }
-    h1, h2 {
+
+    h1,
+    h2 {
       text-align: center;
     }
+
     form {
       background: white;
       padding: 20px;
       border-radius: 10px;
       max-width: 900px;
       margin: auto;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     }
+
     label {
       display: block;
       margin-top: 10px;
       font-weight: bold;
     }
-    input, textarea, select {
+
+    input,
+    textarea,
+    select {
       width: 100%;
       padding: 8px;
       margin-top: 5px;
       border-radius: 5px;
       border: 1px solid #ccc;
     }
+
     .week-buttons {
       text-align: center;
       margin: 20px 0;
     }
+
     .week-buttons button {
       margin: 3px;
       padding: 10px 15px;
@@ -44,60 +54,73 @@
       background-color: #eee;
       cursor: pointer;
     }
+
     .week-buttons button.active {
       background-color: #007BFF;
       color: white;
       font-weight: bold;
     }
-    .week-buttons button.add-btn {
-      background-color: #28a745;
-      color: white;
-    }
+
     .week-form {
       margin-top: 20px;
       background-color: #f0f8ff;
       padding: 15px;
       border-radius: 8px;
     }
-    #generateBtn, #exportWordBtn {
+
+    #saveBtn {
+      margin-top: 20px;
+      background-color: #28a745;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    #generateBtn {
       display: block;
-      margin: 20px auto;
+      margin: 30px auto 0 auto;
+      background-color: #007BFF;
+      color: white;
       padding: 12px 30px;
       font-size: 16px;
       border: none;
       border-radius: 6px;
       cursor: pointer;
     }
-    #generateBtn {
+
+    #exportWordBtn {
+      display: block;
+      margin: 10px auto;
       background-color: #007BFF;
       color: white;
+      padding: 12px 30px;
+      font-size: 16px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
     }
-    #exportWordBtn {
-      background-color: #17a2b8;
+
+    #exportPdfBtn {
+      display: block;
+      margin: 10px auto;
+      background-color:#007BFF;
       color: white;
-    }
-    #teachingPlanOutput table {
-      border-collapse: collapse;
-      width: 100%;
-      margin-top: 20px;
-    }
-    #teachingPlanOutput th,
-    #teachingPlanOutput td {
-      border: 1px solid #666;
-      padding: 6px;
-      text-align: center;
-      vertical-align: middle;
-    }
-    #teachingPlanOutput th {
-      background-color: #cce5ff;
-    }
-    #teachingPlanOutput .grey {
-      background-color: #d9d9d9;
+      padding: 12px 30px;
+      font-size: 16px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
     }
   </style>
-  <!-- html-docx-js for exporting to Word -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html-docx-js/0.4.0/html-docx.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/docx@8.4.0/build/index.umd.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/docx/7.7.0/docx.umd.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/dompurify@2.3.3/dist/purify.min.js"></script>
 </head>
+
 <body>
 
   <h1>TEMASEK POLYTECHNIC</h1>
@@ -114,39 +137,52 @@
     <input type="date" id="startDate" name="startDate" required>
 
     <button type="button" onclick="initializeWeeks()">Start Plan</button>
+
     <div id="weekTabs" class="week-buttons"></div>
 
     <div id="weekForm" class="week-form" style="display:none;">
       <h3 id="weekTitle">Week X</h3>
+
       <label>Week Type:</label>
       <select id="weekType" onchange="handleWeekTypeChange()">
         <option value="normal" selected>Normal Week</option>
         <option value="term_test">Term Test</option>
         <option value="term_break">Term Break</option>
         <option value="flex_week">Flex Week</option>
+        <option value="study_week">Study Week</option>
       </select>
+
       <label>Session #1:</label>
       <input type="text" id="session1">
+
       <label>Session #2:</label>
       <input type="text" id="session2">
+
       <label>E-Learning / Independent Learning:</label>
       <input type="text" id="elearning">
+
       <label>ILO - Contact Hours:</label>
       <input type="text" id="ilo_contact">
+
       <label>ILO - Non-Contact Hours:</label>
       <input type="text" id="ilo_noncontact">
+
       <label>Remarks:</label>
       <textarea id="remarks" rows="3"></textarea>
     </div>
 
     <div id="specialPeriods" style="margin-top: 30px; background: #fff3cd; padding: 15px; border-radius: 8px;">
       <h3>Special Periods</h3>
+
       <label for="examStart">Examination Period Start:</label>
       <input type="date" id="examStart">
+
       <label for="examEnd">Examination Period End:</label>
       <input type="date" id="examEnd">
+
       <label for="vacationStart">Vacation Period Start:</label>
       <input type="date" id="vacationStart">
+
       <label for="vacationEnd">Vacation Period End:</label>
       <input type="date" id="vacationEnd">
     </div>
@@ -154,177 +190,530 @@
 
   <button id="generateBtn">Generate Teaching Plan</button>
   <button id="exportWordBtn">Export to Word</button>
-
-  <div id="teachingPlanOutput"></div>
+  <button id="exportPdfBtn">Export to PDF</button>
 
   <script>
-    let weeksData = [];
+    window.onload = () => {
+      if (performance.navigation.type === 1) { // 1 means page reload
+        window.location.href = "index.html"; // or any homepage
+      }
+    };
+
+    const weeksData = Array(18).fill().map(() => ({
+      weekType: 'normal',
+      session1: '',
+      session2: '',
+      elearning: '',
+      ilo_contact: '',
+      ilo_noncontact: '',
+      remarks: ''
+    }));
+
     let currentWeekIndex = null;
 
     function initializeWeeks() {
-      weeksData = [];
-      document.getElementById('weekTabs').innerHTML = '';
-      document.getElementById('weekForm').style.display = 'block';
-      addNewWeek();
-    }
-
-    function addNewWeek() {
-      saveWeekData();
-      weeksData.push({
-        weekType: 'normal', session1:'', session2:'', elearning:'', ilo_contact:'', ilo_noncontact:'', remarks:''
-      });
-      renderWeekButtons();
-      loadWeek(weeksData.length - 1);
-    }
-
-    function renderWeekButtons() {
       const tabs = document.getElementById('weekTabs');
       tabs.innerHTML = '';
-      weeksData.forEach((_, i) => {
+      document.getElementById('weekForm').style.display = 'block';
+
+      for (let i = 0; i < 18; i++) {
         const btn = document.createElement('button');
-        btn.id = `weekBtn${i}`; btn.type = 'button';
-        btn.innerText = `Week ${i+1}`; 
+        btn.type = 'button';
+        btn.innerText = `Week ${i + 1}`;
         btn.onclick = () => loadWeek(i);
+        btn.id = `weekBtn${i}`;
         tabs.appendChild(btn);
-      });
-      const addBtn = document.createElement('button');
-      addBtn.type = 'button';
-      addBtn.innerText = '+ Add Week';
-      addBtn.classList.add('add-btn');
-      addBtn.onclick = addNewWeek;
-      tabs.appendChild(addBtn);
+      }
+
+      loadWeek(0);
     }
 
-    function loadWeek(i) {
+    function loadWeek(index) {
       if (currentWeekIndex !== null) saveWeekData();
-      currentWeekIndex = i;
-      document.getElementById('weekTitle').innerText = `Week ${i+1}`;
-      document.querySelectorAll('#weekTabs button').forEach(b => b.classList.remove('active'));
-      document.getElementById(`weekBtn${i}`).classList.add('active');
-      const d = weeksData[i];
-      ['weekType','session1','session2','elearning','ilo_contact','ilo_noncontact','remarks']
-        .forEach(id => document.getElementById(id).value = d[id] || '');
+      currentWeekIndex = index;
+      document.getElementById('weekTitle').innerText = `Week ${index + 1}`;
+
+      for (let i = 0; i < 18; i++) {
+        document.getElementById(`weekBtn${i}`).classList.remove('active');
+      }
+      document.getElementById(`weekBtn${index}`).classList.add('active');
+
+      const data = weeksData[index];
+      document.getElementById('weekType').value = data.weekType || 'normal';
+      document.getElementById('session1').value = data.session1;
+      document.getElementById('session2').value = data.session2;
+      document.getElementById('elearning').value = data.elearning;
+      document.getElementById('ilo_contact').value = data.ilo_contact;
+      document.getElementById('ilo_noncontact').value = data.ilo_noncontact;
+      document.getElementById('remarks').value = data.remarks;
+
       handleWeekTypeChange();
     }
 
     function handleWeekTypeChange() {
-      const isDisabled = document.getElementById('weekType').value !== 'normal';
-      ['session1','session2','elearning','ilo_contact','ilo_noncontact','remarks']
-        .forEach(id => {
-          const f = document.getElementById(id);
-          f.disabled = isDisabled;
-          f.style.backgroundColor = isDisabled ? '#eee':'';  
-        });
+      const type = document.getElementById('weekType').value;
+      const isDisabled = type !== 'normal';
+      const fields = ['session1', 'session2', 'elearning', 'ilo_contact', 'ilo_noncontact', 'remarks'];
+
+      fields.forEach(id => {
+        const field = document.getElementById(id);
+        field.disabled = isDisabled;
+        field.style.backgroundColor = isDisabled ? '#eee' : '';
+      });
     }
 
     function saveWeekData() {
       if (currentWeekIndex === null) return;
-      if (document.getElementById('weekType').value === 'normal') {
-        for (let id of ['session1','session2','elearning','ilo_contact','ilo_noncontact']) {
-          if (!document.getElementById(id).value.trim()) {
-            alert("Fill all fields (except remarks) for a normal week.");
+
+      const weekType = document.getElementById('weekType').value;
+
+      if (weekType === 'normal') {
+        const requiredFields = ['session1', 'session2', 'elearning', 'ilo_contact', 'ilo_noncontact'];
+        for (let id of requiredFields) {
+          const value = document.getElementById(id).value.trim();
+          if (!value) {
+            alert("Please fill in all fields except remarks for a normal week.");
             return;
           }
         }
       }
-      const d = {};
-      ['weekType','session1','session2','elearning','ilo_contact','ilo_noncontact','remarks']
-        .forEach(id => d[id] = document.getElementById(id).value);
-      weeksData[currentWeekIndex] = d;
-    }
 
-    function generateTeachingPlanTable() {
-      saveWeekData();
-      const out = document.getElementById('teachingPlanOutput');
-      let html = `
-        <table>
-          <thead>
-            <tr class="grey">
-              <th rowspan="2">Wk</th>
-              <th rowspan="2">Commencing</th>
-              <th colspan="2">Contact Hours</th>
-              <th rowspan="2">Non-Contact Hours<br>E-Learning</th>
-              <th colspan="2">ILO</th>
-              <th rowspan="2">Remarks</th>
-            </tr>
-            <tr class="grey">
-              <th>Session #1</th>
-              <th>Session #2</th>
-              <th>Contact Hrs</th>
-              <th>Non-Contact Hrs</th>
-            </tr>
-          </thead>
-          <tbody>`;
-
-      const start = new Date(document.getElementById('startDate').value);
-      weeksData.forEach((d, i) => {
-        const wk = new Date(start);
-        wk.setDate(start.getDate() + i*7);
-        const fmt = dt => dt.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'2-digit'});
-        html += `<tr><td>${i+1}</td><td>${fmt(wk)}</td>`;
-        if (d.weekType==='normal') {
-          html += `
-            <td>${d.session1}</td>
-            <td>${d.session2}</td>
-            <td>${d.elearning}</td>
-            <td>${d.ilo_contact}</td>
-            <td>${d.ilo_noncontact}</td>
-            <td>${d.remarks}</td>`;
-        } else {
-          html += `<td colspan="6" style="text-align:center;vertical-align:middle;">
-                     <strong>${d.weekType.replace('_',' ').toUpperCase()}</strong>
-                   </td>`;
-        }
-        html += `</tr>`;
-      });
-
-      const formatReadableRange = (startStr, endStr) => {
-        if (!startStr || !endStr) return '';
-        const start = new Date(startStr);
-        const end = new Date(endStr);
-        const options = { day: '2-digit', month: 'short' };
-        return `(${start.toLocaleDateString('en-GB', options)} - ${end.toLocaleDateString('en-GB', options)})`;
+      weeksData[currentWeekIndex] = {
+        weekType: weekType,
+        session1: document.getElementById('session1').value,
+        session2: document.getElementById('session2').value,
+        elearning: document.getElementById('elearning').value,
+        ilo_contact: document.getElementById('ilo_contact').value,
+        ilo_noncontact: document.getElementById('ilo_noncontact').value,
+        remarks: document.getElementById('remarks').value
       };
 
-      const exam = formatReadableRange(
-        document.getElementById('examStart').value,
-        document.getElementById('examEnd').value
-      );
-      if (exam) {
-        html += `<tr><td colspan="8" style="text-align:center;"><strong>EXAMINATION</strong> ${exam}</td></tr>`;
-      }
-
-      const vac = formatReadableRange(
-        document.getElementById('vacationStart').value,
-        document.getElementById('vacationEnd').value
-      );
-      if (vac) {
-        html += `<tr><td colspan="8" style="text-align:center;"><strong>VACATION</strong> ${vac}</td></tr>`;
-      }
-
-      html += `</tbody></table>`;
-      out.innerHTML = html;
+      console.log(`Week ${currentWeekIndex + 1} saved`, weeksData[currentWeekIndex]);
+      alert(`Week ${currentWeekIndex + 1} saved successfully.`);
     }
 
     document.getElementById('generateBtn').addEventListener('click', generateTeachingPlanTable);
 
-    document.getElementById('exportWordBtn').addEventListener('click', function () {
-      generateTeachingPlanTable(); // Ensure latest version
-      const content = document.getElementById('teachingPlanOutput').innerHTML;
-      const preHtml = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Teaching Plan</title></head><body>';
-      const postHtml = '</body></html>';
-      const html = preHtml + content + postHtml;
-      const blob = htmlDocx.asBlob(html);
-      saveAs(blob, 'TeachingPlan.docx');
-    });
+    function generateTeachingPlanTable() {
+      saveWeekData();
 
-    // FileSaver.js (required by html-docx-js)
-    function saveAs(blob, fileName) {
-      const link = document.createElement('a');
-      link.href = URL.createObjectURL(blob);
-      link.download = fileName;
-      link.click();
+      const tableWindow = window.open('', '_blank');
+      const doc = tableWindow.document;
+
+      let tableHTML = `
+        <title>Generated Teaching Plan</title>
+        <style>
+          body { font-family: Arial, sans-serif; padding: 20px; }
+          table { border-collapse: collapse; width: 100%; }
+          th, td { border: 1px solid #666; padding: 6px; text-align: center; vertical-align: middle; }
+          th { background-color: #cce5ff; }
+          .grey { background-color: #d9d9d9; }
+          .center-text { text-align: center; }
+        </style>
+        </head><body>
+        <div class="center-text">
+          <h2>TEMASEK POLYTECHNIC<br>SCHOOL OF INFORMATICS & IT</h2>
+          <h3>Generated Teaching Plan</h3>
+        </div>
+        <table>
+          <tr class="grey">
+            <th>Wk</th>
+            <th>Commencing</th>
+            <th colspan="2">Contact Hours<br>Workshop / Practical / Tutorial</th>
+            <th>Non-Contact Hours<br>E-Learning / Independent Learning</th>
+            <th>ILO<br>Contact Hours</th>
+            <th>ILO<br>Non-Contact Hours</th>
+            <th>Remarks</th>
+          </tr>
+      `;
+
+      const startDate = new Date(document.getElementById('startDate').value);
+      for (let i = 0; i < weeksData.length; i++) {
+        const data = weeksData[i];
+        const weekNo = i + 1;
+        const isEmpty = !data.weekType || (
+          data.weekType === 'normal' &&
+          !data.session1 && !data.session2 && !data.elearning &&
+          !data.ilo_contact && !data.ilo_noncontact && !data.remarks
+        );
+
+        if (isEmpty) continue;
+
+        const weekStart = new Date(startDate);
+        weekStart.setDate(weekStart.getDate() + i * 7);
+
+        const formatDate = (date) => {
+          const options = { day: '2-digit', month: 'short', year: '2-digit' };
+          return date.toLocaleDateString('en-GB', options);
+        };
+
+        let row = `<tr><td>${weekNo}</td><td>${formatDate(weekStart)}</td>`;
+
+        if (data.weekType === 'normal') {
+          row += `
+            <td>${data.session1 || ''}</td>
+            <td>${data.session2 || ''}</td>
+            <td>${data.elearning || ''}</td>
+            <td>${data.ilo_contact || ''}</td>
+            <td>${data.ilo_noncontact || ''}</td>
+            <td>${data.remarks || ''}</td>
+          `;
+        } else {
+          // For flex week or term break (special week types)
+          const span = `<td colspan="6" style="text-align:center; vertical-align:middle; border-right: 1px solid #666;">
+                          <strong>${data.weekType.replace('_', ' ').toUpperCase()}</strong>
+                        </td>`;
+          row += span + '</tr>';
+          tableHTML += row;
+          continue;
+        }
+
+        row += `</tr>`;
+        tableHTML += row;
+      }
+
+      function formatRange(startStr, endStr) {
+        if (!startStr || !endStr) return '';
+        const options = { day: 'numeric', month: 'long', year: 'numeric' };
+        const start = new Date(startStr).toLocaleDateString('en-GB', options);
+        const end = new Date(endStr).toLocaleDateString('en-GB', options);
+        return `${start} – ${end}`;
+      }
+
+      const examRange = formatRange(document.getElementById('examStart').value, document.getElementById('examEnd').value);
+      if (examRange) {
+        tableHTML += `
+          <tr>
+            <td colspan="8" style="text-align:center; vertical-align:middle; font-weight:bold;">EXAMINATION ${examRange}</td>
+          </tr>
+        `;
+      }
+
+      const vacationRange = formatRange(document.getElementById('vacationStart').value, document.getElementById('vacationEnd').value);
+      if (vacationRange) {
+        tableHTML += `
+          <tr>
+            <td colspan="8" style="text-align:center; vertical-align:middle; font-weight:bold;">VACATION ${vacationRange}</td>
+          </tr>
+        `;
+      }
+
+      tableHTML += `</table></body></html>`;
+
+      doc.open();
+      doc.write(tableHTML);
+      doc.close();
+    }
+
+
+    document.getElementById('exportPdfBtn').addEventListener('click', exportTeachingPlanToPDF);
+
+    function exportTeachingPlanToPDF() {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+
+      let tableHTML = `
+        <title>Generated Teaching Plan</title>
+        <style>
+          body { font-family: Arial, sans-serif; padding: 20px; }
+          table { border-collapse: collapse; width: 100%; }
+          th, td { border: 1px solid #666; padding: 6px; text-align: center; vertical-align: middle; }
+          th { background-color: #cce5ff; }
+          .grey { background-color: #d9d9d9; }
+          .center-text { text-align: center; }
+        </style>
+        </head><body>
+        <div class="center-text">
+          <h2>TEMASEK POLYTECHNIC<br>SCHOOL OF INFORMATICS & IT</h2>
+          <h3>Generated Teaching Plan</h3>
+        </div>
+        <table>
+          <tr class="grey">
+            <th>Wk</th>
+            <th>Commencing</th>
+            <th colspan="2">Contact Hours<br>Workshop / Practical / Tutorial</th>
+            <th>Non-Contact Hours<br>E-Learning / Independent Learning</th>
+            <th>ILO<br>Contact Hours</th>
+            <th>ILO<br>Non-Contact Hours</th>
+            <th>Remarks</th>
+          </tr>
+      `;
+
+      const startDate = new Date(document.getElementById('startDate').value);
+      for (let i = 0; i < 18; i++) {
+        const data = weeksData[i];
+        const weekNo = i + 1;
+        const weekStart = new Date(startDate);
+        weekStart.setDate(weekStart.getDate() + i * 7);
+
+        const formatDate = (date) => {
+          const options = { day: '2-digit', month: 'short', year: '2-digit' };
+          return date.toLocaleDateString('en-GB', options);
+        };
+
+        let row = `<tr><td>${weekNo}</td><td>${formatDate(weekStart)}</td>`;
+
+        if (data.weekType === 'normal') {
+          row += `
+            <td>${data.session1}</td>
+            <td>${data.elearning}</td>
+            <td>${data.ilo_contact}</td>
+            <td>${data.ilo_noncontact}</td>
+            <td>${data.remarks}</td>`;
+        } else {
+          const span = `<td colspan="6" style="text-align:center; vertical-align:middle;"><strong>${data.weekType.replace('_', ' ').toUpperCase()}</strong></td>`;
+          row += `${span}<td>${data.remarks}</td>`;
+        }
+
+        row += `</tr>`;
+        tableHTML += row;
+      }
+
+      function formatRange(startStr, endStr) {
+        if (!startStr || !endStr) return '';
+        return `${new Date(startStr).toLocaleDateString('en-GB')} to ${new Date(endStr).toLocaleDateString('en-GB')}`;
+      }
+
+      const examRange = formatRange(document.getElementById('examStart').value, document.getElementById('examEnd').value);
+      if (examRange) {
+        tableHTML += `
+          <tr>
+            <td colspan="7" style="text-align:center; vertical-align:middle;"><strong>EXAMINATION</strong> ${examRange}</td>
+            <td></td>
+          </tr>`;
+      }
+
+      const vacationRange = formatRange(document.getElementById('vacationStart').value, document.getElementById('vacationEnd').value);
+      if (vacationRange) {
+        tableHTML += `
+          <tr>
+            <td colspan="7" style="text-align:center; vertical-align:middle;"><strong>VACATION</strong> ${vacationRange}</td>
+            <td></td>
+          </tr>`;
+      }
+
+      tableHTML += `</table>`;
+
+      doc.html(tableHTML, {
+        callback: function (doc) {
+          doc.save('Teaching_Plan.pdf');
+        },
+        margin: [20, 20, 20, 20],
+        html2canvas: { scale: 2 },
+      });
     }
   </script>
+  <script>
+    document.getElementById('exportWordBtn').addEventListener('click', async () => {
+      saveWeekData(); // Ensure data is saved before export
+
+      const { Document, Packer, Paragraph, Table, TableRow, TableCell, WidthType, TextRun, AlignmentType, ShadingType } = window.docx;
+
+      const formatDate = (dateStr) => {
+        const date = new Date(dateStr);
+        return dateStr ? date.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: '2-digit' }) : '';
+      };
+
+      const formatRange = (startStr, endStr) => {
+        if (!startStr || !endStr) return '';
+        return `${new Date(startStr).toLocaleDateString('en-GB')} to ${new Date(endStr).toLocaleDateString('en-GB')}`;
+      };
+
+      const startDate = new Date(document.getElementById('startDate').value);
+      const examRange = formatRange(document.getElementById('examStart').value, document.getElementById('examEnd').value);
+      const vacationRange = formatRange(document.getElementById('vacationStart').value, document.getElementById('vacationEnd').value);
+
+      // Table Header with Light Blue Background
+      const tableRows = [
+        new TableRow({
+          children: [
+            new TableCell({
+              children: [new Paragraph({ text: "Wk", alignment: AlignmentType.CENTER })],
+              width: { size: 10, type: WidthType.PERCENTAGE },
+              shading: { fill: "CCE5FF", type: ShadingType.CLEAR } // Light blue background
+            }),
+            new TableCell({
+              children: [new Paragraph({ text: "Commencing", alignment: AlignmentType.CENTER })],
+              width: { size: 20, type: WidthType.PERCENTAGE },
+              shading: { fill: "CCE5FF", type: ShadingType.CLEAR }
+            }),
+            new TableCell({
+              children: [new Paragraph({ text: "Contact Hours\nWorkshop / Practical", alignment: AlignmentType.CENTER })],
+              width: { size: 20, type: WidthType.PERCENTAGE },
+              shading: { fill: "CCE5FF", type: ShadingType.CLEAR }
+            }),
+            new TableCell({
+              children: [new Paragraph({ text: "Contact Hours\nTutorial", alignment: AlignmentType.CENTER })],
+              width: { size: 20, type: WidthType.PERCENTAGE },
+              shading: { fill: "CCE5FF", type: ShadingType.CLEAR }
+            }),
+            new TableCell({
+              children: [new Paragraph({ text: "Non-Contact Hours\nE-Learning", alignment: AlignmentType.CENTER })],
+              width: { size: 20, type: WidthType.PERCENTAGE },
+              shading: { fill: "CCE5FF", type: ShadingType.CLEAR }
+            }),
+            new TableCell({
+              children: [new Paragraph({ text: "ILO\nContact Hours", alignment: AlignmentType.CENTER })],
+              width: { size: 10, type: WidthType.PERCENTAGE },
+              shading: { fill: "CCE5FF", type: ShadingType.CLEAR }
+            }),
+            new TableCell({
+              children: [new Paragraph({ text: "ILO\nNon-Contact Hours", alignment: AlignmentType.CENTER })],
+              width: { size: 10, type: WidthType.PERCENTAGE },
+              shading: { fill: "CCE5FF", type: ShadingType.CLEAR }
+            }),
+            new TableCell({
+              children: [new Paragraph({ text: "Remarks", alignment: AlignmentType.CENTER })],
+              width: { size: 10, type: WidthType.PERCENTAGE },
+              shading: { fill: "CCE5FF", type: ShadingType.CLEAR }
+            })
+          ]
+        })
+      ];
+
+      // Populate Table with Week Data
+      for (let i = 0; i < weeksData.length; i++) {
+      const week = weeksData[i];
+
+      // Determine if this week is empty (no data in any field and not a special week)
+      const isEmpty =
+        !week.session1 &&
+        !week.session2 &&
+        !week.elearning &&
+        !week.ilo_contact &&
+        !week.ilo_noncontact &&
+        !week.remarks &&
+        !week.weekType; // Skip if everything is empty
+
+      if (isEmpty) continue; // Skip this week
+
+      const weekStart = new Date(startDate);
+      weekStart.setDate(weekStart.getDate() + i * 7);
+
+      const rowCells = [
+        new TableCell({
+          children: [new Paragraph({ text: (i + 1).toString(), alignment: AlignmentType.CENTER })],
+          width: { size: 10, type: WidthType.PERCENTAGE }
+        }),
+        new TableCell({
+          children: [new Paragraph({ text: formatDate(weekStart), alignment: AlignmentType.CENTER })],
+          width: { size: 20, type: WidthType.PERCENTAGE }
+        }),
+        new TableCell({
+          children: [new Paragraph({ text: week.session1 || '', alignment: AlignmentType.CENTER })],
+          width: { size: 20, type: WidthType.PERCENTAGE }
+        }),
+        new TableCell({
+          children: [new Paragraph({ text: week.session2 || '', alignment: AlignmentType.CENTER })],
+          width: { size: 20, type: WidthType.PERCENTAGE }
+        }),
+        new TableCell({
+          children: [new Paragraph({ text: week.elearning || '', alignment: AlignmentType.CENTER })],
+          width: { size: 20, type: WidthType.PERCENTAGE }
+        }),
+        new TableCell({
+          children: [new Paragraph({ text: week.ilo_contact || '', alignment: AlignmentType.CENTER })],
+          width: { size: 10, type: WidthType.PERCENTAGE }
+        }),
+        new TableCell({
+          children: [new Paragraph({ text: week.ilo_noncontact || '', alignment: AlignmentType.CENTER })],
+          width: { size: 10, type: WidthType.PERCENTAGE }
+        }),
+        new TableCell({
+          children: [new Paragraph({ text: week.remarks || '', alignment: AlignmentType.CENTER })],
+          width: { size: 10, type: WidthType.PERCENTAGE }
+        })
+      ];
+
+      // Special formatting for flex/study weeks
+      if (week.weekType === "flex_week" || week.weekType === "study_week") {
+        rowCells[2] = new TableCell({
+          children: [new Paragraph({
+            text: week.weekType.replace("_", " ").toUpperCase(),
+            alignment: AlignmentType.CENTER
+          })],
+          columnSpan: 6,
+          width: { size: 70, type: WidthType.PERCENTAGE },
+          shading: { fill: "d9d9d9", type: ShadingType.CLEAR }
+        });
+
+        rowCells[7] = new TableCell({
+          children: [new Paragraph({ text: week.remarks || '', alignment: AlignmentType.CENTER })],
+          width: { size: 10, type: WidthType.PERCENTAGE }
+        });
+      }
+
+      tableRows.push(new TableRow({ children: rowCells }));
+    }
+
+
+      // Add EXAM and VACATION rows if present
+      if (examRange) {
+        tableRows.push(new TableRow({
+          children: [
+            new TableCell({
+              children: [new Paragraph({ text: `EXAMINATION ${examRange}`, alignment: AlignmentType.CENTER })],
+              columnSpan: 8,
+              width: { size: 100, type: WidthType.PERCENTAGE }
+            })
+          ]
+        }));
+      }
+
+      if (vacationRange) {
+        tableRows.push(new TableRow({
+          children: [
+            new TableCell({
+              children: [new Paragraph({ text: `VACATION ${vacationRange}`, alignment: AlignmentType.CENTER })],
+              columnSpan: 8,
+              width: { size: 100, type: WidthType.PERCENTAGE }
+            })
+          ]
+        }));
+      }
+
+      
+      const doc = new Document({
+        sections: [{
+          properties: {},
+          children: [
+            new Paragraph({
+              heading: "Heading1",
+              alignment: AlignmentType.CENTER,
+              children: [
+                new TextRun({
+                  text: "TEMASEK POLYTECHNIC\nSCHOOL OF INFORMATICS & IT",
+                  color: "000000",
+                }),
+              ],
+            }),
+            new Paragraph({
+              heading: "Heading2",
+              alignment: AlignmentType.CENTER,
+              children: [
+                new TextRun({
+                  text: "Generated Teaching Plan",
+                  color: "000000",
+                }),
+              ],
+            }),
+            new Table({
+              rows: tableRows
+            })
+          ]
+        }]
+      });
+
+      const blob = await Packer.toBlob(doc);
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = "Teaching_Plan.docx";
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+    </script>
+
 </body>
+
 </html>
