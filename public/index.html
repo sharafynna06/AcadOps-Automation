@@ -1,9 +1,14 @@
+
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
   <meta charset="UTF-8">
   <title>Teaching Plan - Weekly Form</title>
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/0.4.1/html2canvas.min.js"></script>
+
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -571,81 +576,77 @@
         })
       ];
 
-      // Populate Table with Week Data
       for (let i = 0; i < weeksData.length; i++) {
-      const week = weeksData[i];
+  const week = weeksData[i];
 
-      // Determine if this week is empty (no data in any field and not a special week)
-      const isEmpty =
-        !week.session1 &&
-        !week.session2 &&
-        !week.elearning &&
-        !week.ilo_contact &&
-        !week.ilo_noncontact &&
-        !week.remarks &&
-        !week.weekType; // Skip if everything is empty
+  const hasContent =
+    (week.session1 && week.session1.trim() !== '') ||
+    (week.session2 && week.session2.trim() !== '') ||
+    (week.elearning && week.elearning.trim() !== '') ||
+    (week.ilo_contact && week.ilo_contact.trim() !== '') ||
+    (week.ilo_noncontact && week.ilo_noncontact.trim() !== '') ||
+    (week.remarks && week.remarks.trim() !== '') ||
+    (week.weekType === "flex_week" || week.weekType === "study_week");
 
-      if (isEmpty) continue; // Skip this week
+  if (!hasContent) continue; // Skip the week if it's truly empty
 
-      const weekStart = new Date(startDate);
-      weekStart.setDate(weekStart.getDate() + i * 7);
+  const weekStart = new Date(startDate);
+  weekStart.setDate(weekStart.getDate() + i * 7);
 
-      const rowCells = [
-        new TableCell({
-          children: [new Paragraph({ text: (i + 1).toString(), alignment: AlignmentType.CENTER })],
-          width: { size: 10, type: WidthType.PERCENTAGE }
-        }),
-        new TableCell({
-          children: [new Paragraph({ text: formatDate(weekStart), alignment: AlignmentType.CENTER })],
-          width: { size: 20, type: WidthType.PERCENTAGE }
-        }),
-        new TableCell({
-          children: [new Paragraph({ text: week.session1 || '', alignment: AlignmentType.CENTER })],
-          width: { size: 20, type: WidthType.PERCENTAGE }
-        }),
-        new TableCell({
-          children: [new Paragraph({ text: week.session2 || '', alignment: AlignmentType.CENTER })],
-          width: { size: 20, type: WidthType.PERCENTAGE }
-        }),
-        new TableCell({
-          children: [new Paragraph({ text: week.elearning || '', alignment: AlignmentType.CENTER })],
-          width: { size: 20, type: WidthType.PERCENTAGE }
-        }),
-        new TableCell({
-          children: [new Paragraph({ text: week.ilo_contact || '', alignment: AlignmentType.CENTER })],
-          width: { size: 10, type: WidthType.PERCENTAGE }
-        }),
-        new TableCell({
-          children: [new Paragraph({ text: week.ilo_noncontact || '', alignment: AlignmentType.CENTER })],
-          width: { size: 10, type: WidthType.PERCENTAGE }
-        }),
-        new TableCell({
-          children: [new Paragraph({ text: week.remarks || '', alignment: AlignmentType.CENTER })],
-          width: { size: 10, type: WidthType.PERCENTAGE }
-        })
-      ];
+  const rowCells = [
+    new TableCell({
+      children: [new Paragraph({ text: (i + 1).toString(), alignment: AlignmentType.CENTER })],
+      width: { size: 10, type: WidthType.PERCENTAGE }
+    }),
+    new TableCell({
+      children: [new Paragraph({ text: formatDate(weekStart), alignment: AlignmentType.CENTER })],
+      width: { size: 20, type: WidthType.PERCENTAGE }
+    }),
+    new TableCell({
+      children: [new Paragraph({ text: week.session1 || '', alignment: AlignmentType.CENTER })],
+      width: { size: 20, type: WidthType.PERCENTAGE }
+    }),
+    new TableCell({
+      children: [new Paragraph({ text: week.session2 || '', alignment: AlignmentType.CENTER })],
+      width: { size: 20, type: WidthType.PERCENTAGE }
+    }),
+    new TableCell({
+      children: [new Paragraph({ text: week.elearning || '', alignment: AlignmentType.CENTER })],
+      width: { size: 20, type: WidthType.PERCENTAGE }
+    }),
+    new TableCell({
+      children: [new Paragraph({ text: week.ilo_contact || '', alignment: AlignmentType.CENTER })],
+      width: { size: 10, type: WidthType.PERCENTAGE }
+    }),
+    new TableCell({
+      children: [new Paragraph({ text: week.ilo_noncontact || '', alignment: AlignmentType.CENTER })],
+      width: { size: 10, type: WidthType.PERCENTAGE }
+    }),
+    new TableCell({
+      children: [new Paragraph({ text: week.remarks || '', alignment: AlignmentType.CENTER })],
+      width: { size: 10, type: WidthType.PERCENTAGE }
+    })
+  ];
 
-      // Special formatting for flex/study weeks
-      if (week.weekType === "flex_week" || week.weekType === "study_week") {
-        rowCells[2] = new TableCell({
-          children: [new Paragraph({
-            text: week.weekType.replace("_", " ").toUpperCase(),
-            alignment: AlignmentType.CENTER
-          })],
-          columnSpan: 6,
-          width: { size: 70, type: WidthType.PERCENTAGE },
-          shading: { fill: "d9d9d9", type: ShadingType.CLEAR }
-        });
+  if (week.weekType === "flex_week" || week.weekType === "study_week") {
+    rowCells[2] = new TableCell({
+      children: [new Paragraph({
+        text: week.weekType.replace("_", " ").toUpperCase(),
+        alignment: AlignmentType.CENTER
+      })],
+      columnSpan: 6,
+      width: { size: 70, type: WidthType.PERCENTAGE },
+      shading: { fill: "d9d9d9", type: ShadingType.CLEAR }
+    });
 
-        rowCells[7] = new TableCell({
-          children: [new Paragraph({ text: week.remarks || '', alignment: AlignmentType.CENTER })],
-          width: { size: 10, type: WidthType.PERCENTAGE }
-        });
-      }
+    rowCells[7] = new TableCell({
+      children: [new Paragraph({ text: week.remarks || '', alignment: AlignmentType.CENTER })],
+      width: { size: 10, type: WidthType.PERCENTAGE }
+    });
+  }
 
-      tableRows.push(new TableRow({ children: rowCells }));
-    }
-
+  tableRows.push(new TableRow({ children: rowCells }));
+}
 
       // Add EXAM and VACATION rows if present
       if (examRange) {
@@ -717,3 +718,8 @@
 </body>
 
 </html>
+
+
+
+
+
