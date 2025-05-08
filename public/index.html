@@ -1,9 +1,14 @@
+
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
   <meta charset="UTF-8">
   <title>Teaching Plan - Weekly Form</title>
+
+  
+  <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/0.4.1/html2canvas.min.js"></script> -->
+
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -511,122 +516,142 @@ console.log(window.html2canvas); // should NOT be undefined
   const examRange = formatRange(document.getElementById('examStart').value, document.getElementById('examEnd').value);
   const vacationRange = formatRange(document.getElementById('vacationStart').value, document.getElementById('vacationEnd').value);
 
-  const headerCells = [
-    "Wk", "Commencing", "Contact Hours\nWorkshop / Practical", "Contact Hours\nTutorial",
-    "Non-Contact Hours\nE-Learning", "ILO\nContact Hours", "ILO\nNon-Contact Hours", "Remarks"
-  ];
+      // Table Header with Light Blue Background
+      const tableRows = [
+        new TableRow({
+          children: [
+            new TableCell({
+              children: [new Paragraph({ text: "Wk", alignment: AlignmentType.CENTER })],
+              width: { size: 10, type: WidthType.PERCENTAGE },
+              shading: { fill: "CCE5FF", type: ShadingType.CLEAR } // Light blue background
+            }),
+            new TableCell({
+              children: [new Paragraph({ text: "Commencing", alignment: AlignmentType.CENTER })],
+              width: { size: 20, type: WidthType.PERCENTAGE },
+              shading: { fill: "CCE5FF", type: ShadingType.CLEAR }
+            }),
+            new TableCell({
+              children: [new Paragraph({ text: "Contact Hours\nWorkshop / Practical", alignment: AlignmentType.CENTER })],
+              width: { size: 20, type: WidthType.PERCENTAGE },
+              shading: { fill: "CCE5FF", type: ShadingType.CLEAR }
+            }),
+            new TableCell({
+              children: [new Paragraph({ text: "Contact Hours\nTutorial", alignment: AlignmentType.CENTER })],
+              width: { size: 20, type: WidthType.PERCENTAGE },
+              shading: { fill: "CCE5FF", type: ShadingType.CLEAR }
+            }),
+            new TableCell({
+              children: [new Paragraph({ text: "Non-Contact Hours\nE-Learning", alignment: AlignmentType.CENTER })],
+              width: { size: 20, type: WidthType.PERCENTAGE },
+              shading: { fill: "CCE5FF", type: ShadingType.CLEAR }
+            }),
+            new TableCell({
+              children: [new Paragraph({ text: "ILO\nContact Hours", alignment: AlignmentType.CENTER })],
+              width: { size: 10, type: WidthType.PERCENTAGE },
+              shading: { fill: "CCE5FF", type: ShadingType.CLEAR }
+            }),
+            new TableCell({
+              children: [new Paragraph({ text: "ILO\nNon-Contact Hours", alignment: AlignmentType.CENTER })],
+              width: { size: 10, type: WidthType.PERCENTAGE },
+              shading: { fill: "CCE5FF", type: ShadingType.CLEAR }
+            }),
+            new TableCell({
+              children: [new Paragraph({ text: "Remarks", alignment: AlignmentType.CENTER })],
+              width: { size: 10, type: WidthType.PERCENTAGE },
+              shading: { fill: "CCE5FF", type: ShadingType.CLEAR }
+            })
+          ]
+        })
+      ];
 
-  const tableRows = [
-    new TableRow({
-      children: headerCells.map((text, idx) => new TableCell({
-        children: [
-          new Paragraph({
-            alignment: AlignmentType.CENTER,
-            children: [new TextRun({ text, bold: true })]
-          })
-        ],
-        width: { size: [10, 20, 20, 20, 20, 10, 10, 10][idx], type: WidthType.PERCENTAGE },
-        shading: { fill: "CCE5FF", type: ShadingType.CLEAR }
-      }))
-    })
-  ];
+      // Populate Table with Week Data
+      for (let i = 0; i < weeksData.length; i++) {
+      const week = weeksData[i];
 
-  for (let i = 0; i < weeksData.length; i++) {
-    const week = weeksData[i];
+      // Determine if this week is empty (no data in any field and not a special week)
+      const isEmpty =
+        !week.session1 &&
+        !week.session2 &&
+        !week.elearning &&
+        !week.ilo_contact &&
+        !week.ilo_noncontact &&
+        !week.remarks &&
+        !week.weekType; // Skip if everything is empty
 
-    const hasContent =
-      (week.session1 && week.session1.trim() !== '') ||
-      (week.session2 && week.session2.trim() !== '') ||
-      (week.elearning && week.elearning.trim() !== '') ||
-      (week.ilo_contact && week.ilo_contact.trim() !== '') ||
-      (week.ilo_noncontact && week.ilo_noncontact.trim() !== '') ||
-      (week.remarks && week.remarks.trim() !== '') ||
-      ["flex_week", "study_week", "term_break"].includes(week.weekType);
+      if (isEmpty) continue; // Skip this week
 
-    if (!hasContent) continue;
+      const weekStart = new Date(startDate);
+      weekStart.setDate(weekStart.getDate() + i * 7);
 
-    const weekStart = new Date(startDate);
-    weekStart.setDate(weekStart.getDate() + i * 7);
+      const rowCells = [
+        new TableCell({
+          children: [new Paragraph({ text: (i + 1).toString(), alignment: AlignmentType.CENTER })],
+          width: { size: 10, type: WidthType.PERCENTAGE }
+        }),
+        new TableCell({
+          children: [new Paragraph({ text: formatDate(weekStart), alignment: AlignmentType.CENTER })],
+          width: { size: 20, type: WidthType.PERCENTAGE }
+        }),
+        new TableCell({
+          children: [new Paragraph({ text: week.session1 || '', alignment: AlignmentType.CENTER })],
+          width: { size: 20, type: WidthType.PERCENTAGE }
+        }),
+        new TableCell({
+          children: [new Paragraph({ text: week.session2 || '', alignment: AlignmentType.CENTER })],
+          width: { size: 20, type: WidthType.PERCENTAGE }
+        }),
+        new TableCell({
+          children: [new Paragraph({ text: week.elearning || '', alignment: AlignmentType.CENTER })],
+          width: { size: 20, type: WidthType.PERCENTAGE }
+        }),
+        new TableCell({
+          children: [new Paragraph({ text: week.ilo_contact || '', alignment: AlignmentType.CENTER })],
+          width: { size: 10, type: WidthType.PERCENTAGE }
+        }),
+        new TableCell({
+          children: [new Paragraph({ text: week.ilo_noncontact || '', alignment: AlignmentType.CENTER })],
+          width: { size: 10, type: WidthType.PERCENTAGE }
+        }),
+        new TableCell({
+          children: [new Paragraph({ text: week.remarks || '', alignment: AlignmentType.CENTER })],
+          width: { size: 10, type: WidthType.PERCENTAGE }
+        })
+      ];
 
-    let row;
+      // Special formatting for flex/study weeks
+      if (week.weekType === "flex_week" || week.weekType === "study_week") {
+        rowCells[2] = new TableCell({
+          children: [new Paragraph({
+            text: week.weekType.replace("_", " ").toUpperCase(),
+            alignment: AlignmentType.CENTER
+          })],
+          columnSpan: 6,
+          width: { size: 70, type: WidthType.PERCENTAGE },
+          shading: { fill: "d9d9d9", type: ShadingType.CLEAR }
+        });
 
-    if (["flex_week", "study_week", "term_break"].includes(week.weekType)) {
-      // Special week row with merged cells
-      row = new TableRow({
-        children: [
-          new TableCell({
-            children: [new Paragraph({ text: (i + 1).toString(), alignment: AlignmentType.CENTER })],
-            width: { size: 10, type: WidthType.PERCENTAGE }
-          }),
-          new TableCell({
-            children: [new Paragraph({ text: formatDate(weekStart), alignment: AlignmentType.CENTER })],
-            width: { size: 20, type: WidthType.PERCENTAGE }
-          }),
-          new TableCell({
-            children: [new Paragraph({
-              text: week.weekType.replace("_", " ").toUpperCase(),
-              alignment: AlignmentType.CENTER
-            })],
-            columnSpan: 6,
-            width: { size: 70, type: WidthType.PERCENTAGE },
-            shading: { fill: "d9d9d9", type: ShadingType.CLEAR }
-          })
-        ]
-      });
-    } else {
-      // Regular teaching week
-      row = new TableRow({
-        children: [
-          new TableCell({
-            children: [new Paragraph({ text: (i + 1).toString(), alignment: AlignmentType.CENTER })],
-            width: { size: 10, type: WidthType.PERCENTAGE }
-          }),
-          new TableCell({
-            children: [new Paragraph({ text: formatDate(weekStart), alignment: AlignmentType.CENTER })],
-            width: { size: 20, type: WidthType.PERCENTAGE }
-          }),
-          new TableCell({
-            children: [new Paragraph({ text: week.session1 || '', alignment: AlignmentType.CENTER })],
-            width: { size: 20, type: WidthType.PERCENTAGE }
-          }),
-          new TableCell({
-            children: [new Paragraph({ text: week.session2 || '', alignment: AlignmentType.CENTER })],
-            width: { size: 20, type: WidthType.PERCENTAGE }
-          }),
-          new TableCell({
-            children: [new Paragraph({ text: week.elearning || '', alignment: AlignmentType.CENTER })],
-            width: { size: 20, type: WidthType.PERCENTAGE }
-          }),
-          new TableCell({
-            children: [new Paragraph({ text: week.ilo_contact || '', alignment: AlignmentType.CENTER })],
-            width: { size: 10, type: WidthType.PERCENTAGE }
-          }),
-          new TableCell({
-            children: [new Paragraph({ text: week.ilo_noncontact || '', alignment: AlignmentType.CENTER })],
-            width: { size: 10, type: WidthType.PERCENTAGE }
-          }),
-          new TableCell({
-            children: [new Paragraph({ text: week.remarks || '', alignment: AlignmentType.CENTER })],
-            width: { size: 10, type: WidthType.PERCENTAGE }
-          })
-        ]
-      });
+        rowCells[7] = new TableCell({
+          children: [new Paragraph({ text: week.remarks || '', alignment: AlignmentType.CENTER })],
+          width: { size: 10, type: WidthType.PERCENTAGE }
+        });
+      }
+
+      tableRows.push(new TableRow({ children: rowCells }));
     }
 
-    tableRows.push(row);
-  }
 
-  if (examRange) {
-    tableRows.push(new TableRow({
-      children: [
-        new TableCell({
-          children: [new Paragraph({ text: `EXAMINATION ${examRange}`, alignment: AlignmentType.CENTER })],
-          columnSpan: 8,
-          width: { size: 100, type: WidthType.PERCENTAGE }
-        })
-      ]
-    }));
-  }
+      // Add EXAM and VACATION rows if present
+      if (examRange) {
+        tableRows.push(new TableRow({
+          children: [
+            new TableCell({
+              children: [new Paragraph({ text: `EXAMINATION ${examRange}`, alignment: AlignmentType.CENTER })],
+              columnSpan: 8,
+              width: { size: 100, type: WidthType.PERCENTAGE }
+            })
+          ]
+        }));
+      }
 
   if (vacationRange) {
     tableRows.push(new TableRow({
@@ -696,3 +721,8 @@ console.log(window.html2canvas); // should NOT be undefined
 </body>
 
 </html>
+
+
+
+
+
